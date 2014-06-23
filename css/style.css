@@ -1,0 +1,32 @@
+@font-face{
+  font-family: "Clear Sans";
+  src: url("/fonts/ClearSans-Regular.ttf");
+}
+
+body{
+  background-color: rgb(231, 156, 60);
+  text-align: center;
+  font-family: "Clear Sans";
+}
+h1{
+  color: #EEEFF2;
+  font-size: 50px;
+}
+.board {
+  background: #C2C2C4;
+  width: 480px;
+  height: 480px;
+  margin: 0 auto;
+  border-radius: 6px;
+}
+
+.cell{
+  border: 1px solid #ABABAD;
+  background: #EEEFF2;
+  width: 106.25px;
+  height: 106.25px;
+  float: left;
+  border-radius: 10px;
+/*  box-shadow: 4px 4px 4px #999;*/
+  margin: 6.4px 5px 5px 6.2px;
+}
