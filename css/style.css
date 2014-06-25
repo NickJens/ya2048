@@ -11,13 +11,14 @@ body{
 h1{
   color: #EEEFF2;
   font-size: 50px;
+  text-decoration: underline;
 }
 .board {
   background: #C2C2C4;
   width: 480px;
   height: 480px;
   margin: 0 auto;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
 .cell{
