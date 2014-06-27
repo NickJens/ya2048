@@ -1,3 +1,5 @@
+score = 0
+
 $ ->
   WinningTileValue = 2048
   ppArray = (array) ->
@@ -98,6 +100,8 @@ $ ->
             else if cells[x] == cells[y]
               cells[x] *= 2
               cells[y] = 0
+              addScore(cells[x])
+              console.log "lala #{cells[x]}"
               break
             else if cells[y] != 0
               break
@@ -110,6 +114,7 @@ $ ->
             else if cells[x] == cells[y]
               cells[x] *= 2
               cells[y] = 0
+              addScore(cells[x])
               break
             else if cells[y] != 0
               break
@@ -163,6 +168,7 @@ $ ->
               $(".r#{x}.c#{y} > div").html(board[x][y])
             else
               $(".r#{x}.c#{y} > div").html('')
+
   colorCode = (color) ->
     switch color
       when 0 then "#EEEFF2"
@@ -178,14 +184,24 @@ $ ->
       when 512 then "#66c82e"
       when 1024 then "#00c83a"
       when 2048 then "#c86306"
-      else
+      else "#c86306"
 
+  setScoreZero = ->
+    score = 0
+    $('.score > h2').html("Score: 0")
+
+  addScore = (x) ->
+    score = score + x
+    $('.score > h2').html("Score: #{score}")
+    console.log x
 
   $(".tryAgain").click (e) =>
+    setScoreZero(@board)
     @board = buildBoard()
     generateTile(@board)
     generateTile(@board)
     showBoard(@board)
+
 
 
 
