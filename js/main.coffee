@@ -1,18 +1,12 @@
 $ ->
+  WinningTileValue = 2048
   ppArray = (array) ->
     for row in array
       console.log row
 
-  # a1 = [0..3]
-  # a2 = [4..7]
-  # a3 = [8..11]
-  # a4 = [12..15]
-
-  # masterArray = ->
-  #   masterArray = [a1, a2, a3, a4]
-  # masterArray()
-
   @board = [0..3].map -> [0..3].map -> 0
+
+
 
   for x in [0..3]
     @board[x] = []
@@ -21,6 +15,9 @@ $ ->
 
   randomInt = (x) ->
     Math.floor(Math.random() * x)
+
+  buildBoard = ->
+    [0..3].map -> [0..3].map -> 0
 
   getRandomCell = ->
     [randomInt(4), randomInt(4)]
@@ -45,36 +42,11 @@ $ ->
       else
         generateTile(board)
 
-  $('body').keydown (e) =>
-    key = e.which
-    keys = [37..40]
-
-    if $.inArray(key, keys) > -1
-      e.preventDefault()
-
-    switch key
-      when 37
-        console.log 'left'
-        move(@board, 'left')
-        ppArray(@board)
-      when 38
-        console.log 'up'
-        move(@board, 'up')
-        ppArray(@board)
-      when 39
-        console.log 'right'
-        move(@board, 'right')
-        ppArray(@board)
-      when 40
-        console.log 'down'
-        move(@board, 'down')
-        ppArray(@board)
-
-  generateTile(@board)
   ppArray(@board)
 
   getRow = (rowNumber, board) ->
-    board[rowNumber]
+    [r, b] = [rowNumber, board]
+    [b[r][0], b[r][1], b[r][2], b[r][3]]
 
   getColumn = (c, board) ->
     b = board
@@ -89,7 +61,30 @@ $ ->
     [b[0][c], b[1][c], b[2][c], b[3][c]] = newArray
   # setColumn([2,2,2,3], 3, @board)
 
-  # ppArray @board
+  arrayEqual = (a, b) ->
+    for val, i in a
+      if val != b[i]
+        return false
+    true
+
+  boardEqual = (a, b) ->
+    for row, i in a
+      unless arrayEqual(row, b[i])
+        return false
+    true
+
+  moveIsValid = (a, b) ->
+    not boardEqual(a,b)
+
+  noValidMoves = (board) ->
+    directions = ['up', 'down', 'left', 'right']
+
+    for direction in directions
+      newBoard = move(board, direction)
+      return false if moveIsValid(newBoard, board)
+    true
+
+
 
 
   mergeCells = (originalCells, direction) ->
@@ -120,9 +115,6 @@ $ ->
               break
     cells
 
-  # console.log "merging right: " + mergeCells([2, 0, 2, 2], 'right') #=> 2,0,0,4
-  # console.log "merging left : " + mergeCells([2, 0, 4, 2], 'left') #=> 4,0,0,2
-
   collapseCells = (originalCells, direction) ->
     cells = originalCells
 
@@ -132,7 +124,6 @@ $ ->
         if x == 0
           count = count + 1
       count
-    # console.log "counting 0's: " + countZero([0, 0, 0, 4])
 
     count = countZero(originalCells)
 
@@ -153,54 +144,120 @@ $ ->
               cells[x-1] = temp
     cells
 
-  # console.log "collapsing: " + collapseCells([2, 0, 2, 2], 'right')
-  # console.log "collapsing: " + collapseCells([2, 0, 2, 4], 'left')
-  # console.log "collapsing: " + collapseCells([2, 4, 0, 4], 'left')
-  # console.log "collapsing: " + collapseCells([0, 0, 0, 4], 'left')
+  gameLost = (board) ->
+    boardFull(board) && noValidMoves(board)
+
+  gameWon = (board) ->
+    for row in board
+      for cell in row
+        if cell >= WinningTileValue
+          return true
+      false
 
 
-  # cells = [2, 0, 2, 4]
-  # # 1. merge
-  # result = mergeCells(cells)
-  # @board
-  # # 2. collapse
-  # collapseCells(cells)
+  showBoard = (board) ->
+     for x in [0..3]
+          for y in [0..3]
+            $(".r#{x}.c#{y} ").css("background-color", colorCode(board[x][y]))
+            if (board[x][y]) !=0
+              $(".r#{x}.c#{y} > div").html(board[x][y])
+            else
+              $(".r#{x}.c#{y} > div").html('')
+  colorCode = (color) ->
+    switch color
+      when 0 then "#EEEFF2"
+      when 0 then "#c3c5c8"
+      when 2 then "#0f9dc8"
+      when 4 then "#4360c8"
+      when 8 then "#5d3bc8"
+      when 16 then "#9947c8"
+      when 32 then "#AB2E68"
+      when 64 then "#c852a3"
+      when 128 then "#c84446"
+      when 256 then "#c8ac4c"
+      when 512 then "#66c82e"
+      when 1024 then "#00c83a"
+      when 2048 then "#c86306"
+      else
+
+
+  $(".tryAgain").click (e) =>
+    @board = buildBoard()
+    generateTile(@board)
+    generateTile(@board)
+    showBoard(@board)
 
 
 
 
 
   move = (board, direction) ->
-    switch direction
-      when 'left'
-        for i in [0..3]
+
+    newBoard = buildBoard()
+
+    for i in [0..3]
+      switch direction
+        when 'left'
           row = getRow(i, board)
           row = mergeCells(row, 'left')
           row = collapseCells(row, 'left')
-          setRow(row, i, board)
+          setRow(row, i, newBoard)
 
-      when 'right'
-        for i in [0..3]
-          row = getRow(i, board)
-          row = mergeCells(row, 'right')
-          row = collapseCells(row, 'right')
-          setRow(row, i, board)
+        when 'right'
+          for i in [0..3]
+            row = getRow(i, board)
+            row = mergeCells(row, 'right')
+            row = collapseCells(row, 'right')
+            setRow(row, i, newBoard)
 
-      when 'up'
-        for i in [0..3]
-          row = getColumn(i, board)
-          row = mergeCells(row, 'up')
-          row = collapseCells(row, 'up')
-          setColumn(row, i, board)
+        when 'up'
+          for i in [0..3]
+            row = getColumn(i, board)
+            row = mergeCells(row, 'up')
+            row = collapseCells(row, 'up')
+            setColumn(row, i, newBoard)
 
-      when 'down'
-        for i in [0..3]
-          c = getColumn(i, board)
-          c = mergeCells(c, 'down')
-          c = collapseCells(c, 'down')
-          setColumn(c, i, board)
+        when 'down'
+          for i in [0..3]
+            c = getColumn(i, board)
+            c = mergeCells(c, 'down')
+            c = collapseCells(c, 'down')
+            setColumn(c, i, newBoard)
+    newBoard
 
-    generateTile(board)
+  $('body').keydown (e) =>
+
+    key = e.which
+    keys = [37..40]
+
+
+    if $.inArray(key, keys) > -1
+      e.preventDefault()
+    else
+      return
+
+    direction = switch key
+      when 37 then 'left'
+      when 38 then 'up'
+      when 39 then 'right'
+      when 40 then 'down'
+
+    newBoard = move(@board, direction)
+
+    if moveIsValid(newBoard, @board)
+      @board = newBoard
+      generateTile(@board)
+      showBoard(@board)
+      if gameLost(@board)
+        alert "Game Over"
+      else if gameWon(@board)
+        alert "Yeah Buddy!"
+
+
+  @board = buildBoard()
+  generateTile(@board)
+  generateTile(@board)
+  showBoard(@board)
 
 
 

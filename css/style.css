@@ -22,12 +22,19 @@ h1{
 }
 
 .cell{
+  font-size: 30px;
   border: 1px solid #ABABAD;
   background: #EEEFF2;
   width: 106.25px;
   height: 106.25px;
   float: left;
   border-radius: 10px;
-/*  box-shadow: 4px 4px 4px #999;*/
+  box-shadow: 4px 4px 4px #999;
   margin: 6.4px 5px 5px 6.2px;
+  margin-top: px;
 }
+.cell > div{
+  margin-top: 33px;
+}
+
+
