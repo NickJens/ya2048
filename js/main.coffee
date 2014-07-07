@@ -1,25 +1,17 @@
 score = 0
 
 $ ->
-  WinningTileValue = 2048
+  WinningTileValue = 8
+
   ppArray = (array) ->
     for row in array
       console.log row
 
-  @board = [0..3].map -> [0..3].map -> 0
-
-
-
-  for x in [0..3]
-    @board[x] = []
-    for y in [0..3]
-      @board[x][y] = 0
+  buildBoard = ->
+    [0..3].map -> [0..3].map -> 0
 
   randomInt = (x) ->
     Math.floor(Math.random() * x)
-
-  buildBoard = ->
-    [0..3].map -> [0..3].map -> 0
 
   getRandomCell = ->
     [randomInt(4), randomInt(4)]
@@ -44,7 +36,6 @@ $ ->
       else
         generateTile(board)
 
-  ppArray(@board)
 
   getRow = (rowNumber, board) ->
     [r, b] = [rowNumber, board]
@@ -86,9 +77,6 @@ $ ->
       return false if moveIsValid(newBoard, board)
     true
 
-
-
-
   mergeCells = (originalCells, direction) ->
     cells = originalCells
     switch direction
@@ -101,7 +89,6 @@ $ ->
               cells[x] *= 2
               cells[y] = 0
               addScore(cells[x])
-              console.log "lala #{cells[x]}"
               break
             else if cells[y] != 0
               break
@@ -157,17 +144,17 @@ $ ->
       for cell in row
         if cell >= WinningTileValue
           return true
-      false
+    false
 
 
   showBoard = (board) ->
      for x in [0..3]
-          for y in [0..3]
-            $(".r#{x}.c#{y} ").css("background-color", colorCode(board[x][y]))
-            if (board[x][y]) !=0
-              $(".r#{x}.c#{y} > div").html(board[x][y])
-            else
-              $(".r#{x}.c#{y} > div").html('')
+        for y in [0..3]
+          $(".r#{x}.c#{y} ").css("background-color", colorCode(board[x][y]))
+          if board[x][y] != 0
+            $(".r#{x}.c#{y} > div").html(board[x][y])
+          else
+            $(".r#{x}.c#{y} > div").html('')
 
   colorCode = (color) ->
     switch color
@@ -186,26 +173,16 @@ $ ->
       when 2048 then "#c86306"
       else "#c86306"
 
+  displayScore = (score) ->
+    $('.score > h2').html("Score: #{score}")
+
   setScoreZero = ->
     score = 0
-    $('.score > h2').html("Score: 0")
+    displayScore(score)
 
   addScore = (x) ->
     score = score + x
-    $('.score > h2').html("Score: #{score}")
-    console.log x
-
-  $(".tryAgain").click (e) =>
-    setScoreZero(@board)
-    @board = buildBoard()
-    generateTile(@board)
-    generateTile(@board)
-    showBoard(@board)
-
-
-
-
-
+    displayScore(score)
 
   move = (board, direction) ->
 
@@ -241,6 +218,13 @@ $ ->
             setColumn(c, i, newBoard)
     newBoard
 
+  $(".tryAgain").click (e) =>
+    setScoreZero(@board)
+    @board = buildBoard()
+    generateTile(@board)
+    generateTile(@board)
+    showBoard(@board)
+
   $('body').keydown (e) =>
 
     key = e.which
@@ -269,11 +253,7 @@ $ ->
       else if gameWon(@board)
         alert "Yeah Buddy!"
 
-
   @board = buildBoard()
   generateTile(@board)
   generateTile(@board)
   showBoard(@board)
-
-
-
